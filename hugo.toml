@@ -1,0 +1,4 @@
+baseURL = 'https://ddnio.github.io/'
+languageCode = 'en-us'
+title = 'ddnio'
+theme = "paper"
