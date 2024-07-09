@@ -2,3 +2,13 @@ baseURL = 'https://ddnio.github.io/'
 languageCode = 'en-us'
 title = 'ddnio的胡思乱想'
 theme = "paper"
+markup.goldmark.renderer.unsafe = true
+
+[params]
+  # home page profile
+  avatar = 'https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/uPic/20240627out-2%20(1)_%E5%89%AF%E6%9C%AC.png'                 # gravatar email or image url
+  name = 'Nio'
+  bio = 'say some thing'
+
+#     twitter = 'ddnioo' 
+    github = 'ddnio'

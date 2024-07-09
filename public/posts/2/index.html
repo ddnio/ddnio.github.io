@@ -30,6 +30,12 @@
 
 
 
+
+
+
+
+
+
 <html
   class="not-ready lg:text-base"
   style="--bg: #faf8f1"
@@ -54,7 +60,7 @@
   
   
   <meta name="description" content=" 为什么要写博客？找地方说说话，梳理一下自己的想法。 为什么不用目前已有的平台，要自己建？ 侧重点不一样，在已有平台写东西主要是侧重社区讨论和营销，但目前主要想记录一下想法，练习一下表达水平，更侧重自己。 自己的网站，有掌控感，随意折腾。 使用的组件和考虑点 需要什么：搭建自己的博客网站重点分成两部分：生成博客网站和把网站发布出去。以前也自己买过域名、服务器搭网站，但是维护成本（域名维护、服务器维护、网站维护）有点高。重点放在工具上了，把内容给忽略掉了。所以这次遵循的原则是简单方便，先简单用起来，服务好内容的生产发布，后续有必要再做优化。 服务托管平台：我们是搭建一个自己的博客网站，要能让其他人访问，就需要部署在能被公开访问的服务器上，可以自己购买服务器注册域名，也可以托管在其他平台上，这个就是服务托管。选择的是 GitHub pages，因为程序员必须要用到 GitHub，选择 GitHub pages 就比较自然。当然也有其他的服务托管网站，后面有想法再折腾。不过有一点硬伤是内地网络访问不是很顺畅。 网站生成工具：平时写文章一般是 markdown 格式的文档，写完后要把它渲染成静态页面放到服务器上，这个工具就是用来干这事的。选这工具主要考虑点是上手难度低，拓展性好。用的是 hugo，go 语言开发的，编译速度非常快，比较受欢迎，也有很多好看的开源主题。中间对比使用过 Astro，但感觉Astro 比较偏前端应用，单独做博客网站不那么友好，在尝试过hugo 后感觉还不错，先用着。 搭建流程及简单介绍 Hugo安装配置：https://gohugo.io/getting-started/quick-start/ Github pages 配置：https://gohugo.io/hosting-and-deployment/hosting-on-github/ 前提：了解基本的 git 操作&#43;注册一个 GitHub 账号：https://docs.github.com/zh 原则：先看官方文档。其实每个产品都会有文档说明，就像你买其他产品一定会配有说明书一样。另外，做得好的产品说明书大概率写得非常好，不然怎么受欢迎呢。所以，研究新东西，第一步看官方说明书。如果遇到其他的问题，再具体问题具体解决。 现在写博客的流程 本地新建一个 md文件，吧啦吧啦写好(只有这个是重点，其他流程只在这篇文章里才有必要写一写）。 编译更新，生成网站，只需要在项目目录下敲一个命令：hugo。（背后的动作就是把 markdown 文档渲染成网站的静态页面） 推送到 Github仓库：git push origin，过一会网站就会自动更新了。（把网站的代码推送到 GitHub 仓库，GitHub在监听到这个代码仓库有更新动作后会更新网站） 接下来的 TODO 工作 功能迭代：图片、评论、网站统计、主题优化。 当然是坚持更新内容了。 " />
-  <meta name="author" content="ddnio的胡思乱想" />
+  <meta name="author" content="Nio" />
   
 
   
@@ -76,9 +82,13 @@
   
   
   
+  <link rel="preload" as="image" href="https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/uPic/20240627out-2%20%281%29_%E5%89%AF%E6%9C%AC.png" />
+  
   
 
   
+  
+  <link rel="preload" as="image" href="https://ddnio.github.io/github.svg" />
   
   
 
@@ -214,6 +224,22 @@
     
 
     
+    <nav
+      class="mt-12 flex justify-center space-x-10 dark:invert lg:ml-12 lg:mt-0 lg:items-center lg:space-x-6"
+    >
+      
+      <a
+        class="h-8 w-8 text-[0] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href="https://github.com/ddnio"
+        target="_blank"
+        rel="me"
+      >
+        github
+      </a>
+      
+    </nav>
+    
   </div>
 </header>
 
@@ -286,6 +312,12 @@
   
   
   <nav class="mt-24 flex rounded-lg bg-black/[3%] text-lg dark:bg-white/[8%]">
+    
+    <a
+      class="flex w-1/2 items-center rounded-l-md p-6 pr-3 font-semibold no-underline hover:bg-black/[2%] dark:hover:bg-white/[3%]"
+      href="https://ddnio.github.io/posts/6/"
+      ><span class="mr-1.5">←</span><span>那家伙又来电话啦</span></a
+    >
     
     
     <a
