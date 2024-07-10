@@ -2,7 +2,7 @@ baseURL = 'https://ddnio.github.io/'
 languageCode = 'en-us'
 title = 'ddnio的胡思乱想'
 theme = "paper"
-markup.goldmark.renderer.unsafe = true
+# markup.goldmark.renderer.unsafe = true
 
 [params]
   # home page profile
