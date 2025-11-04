@@ -30,5 +30,5 @@ theme = "paper"
 # 不蒜子访问统计配置
 [params.busuanzi]
   enable = true
-  # 使用自托管备份 CDN（国内加速）
-  scriptURL = "https://ibruce.info/js/busuanzi.pure.mini.js"
+  # 官方脚本地址
+  scriptURL = "//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"
