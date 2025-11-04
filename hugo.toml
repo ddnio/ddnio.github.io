@@ -10,5 +10,19 @@ theme = "paper"
   name = 'Nio'
   bio = 'say some thing'
 
-#     twitter = 'ddnioo' 
+#     twitter = 'ddnioo'
     github = 'ddnio'
+
+# Giscus 评论系统配置
+[params.giscus]
+  repo = "ddnio/ddnio.github.io"
+  repoId = "R_kgDOMM_LVw"
+  category = "Announcements"
+  categoryId = "DIC_kwDOMM_LV84CxYyR"
+  mapping = "pathname"
+  strict = "0"
+  reactionsEnabled = "1"
+  emitMetadata = "0"
+  inputPosition = "bottom"
+  theme = "preferred_color_scheme"
+  lang = "zh-CN"
