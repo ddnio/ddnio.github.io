@@ -8,7 +8,7 @@ theme = "paper"
   # home page profile
   avatar = 'https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/uPic/20240627out-2%20(1)_%E5%89%AF%E6%9C%AC.png'                 # gravatar email or image url
   name = 'Nio'
-  bio = 'say some thing'
+  bio = 'say something'
 
 #     twitter = 'ddnioo'
     github = 'ddnio'
