@@ -15,6 +15,11 @@
       <span class="mx-1">&middot;</span>
       <span>{{ $single_author }}</span>
       {{ end }}
+      <!-- 不蒜子阅读量显示 -->
+      {{ if site.Params.busuanzi.enable }}
+      <span class="mx-1">&middot;</span>
+      <span id="busuanzi_value_page_pv">-</span> 次阅读
+      {{ end }}
     </div>
     {{ end }}
   </header>

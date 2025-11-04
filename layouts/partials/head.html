@@ -82,6 +82,22 @@
   <!-- Generator -->
   {{ hugo.Generator }}
 
+  <!-- Google Analytics -->
+  {{ if and (ne site.Params.analytics.googleAnalyticsID "") (or hugo.IsProduction (eq site.Params.env "production")) }}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.Params.analytics.googleAnalyticsID }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ site.Params.analytics.googleAnalyticsID }}');
+  </script>
+  {{ end }}
+
+  <!-- 不蒜子访问统计 -->
+  {{ if site.Params.busuanzi.enable }}
+  <script async src="{{ site.Params.busuanzi.scriptURL }}"></script>
+  {{ end }}
+
   <!-- Production -->
   {{ if or hugo.IsProduction (eq site.Params.env "production") }}
   <!---->

@@ -13,6 +13,10 @@ theme = "paper"
 #     twitter = 'ddnioo'
     github = 'ddnio'
 
+# Google Analytics 配置
+[params.analytics]
+  googleAnalyticsID = "G-QCTM7BXE50"  # GitHub 博客的 Measurement ID
+
 # Giscus 评论系统配置
 [params.giscus]
   repo = "ddnio/ddnio.github.io"
@@ -22,3 +26,8 @@ theme = "paper"
   mapping = "title"
   theme = "light"
   lang = "zh-CN"
+
+# 不蒜子访问统计配置
+[params.busuanzi]
+  enable = true
+  scriptURL = "https://busuanzi.ibruce.info/busuanzi.pure.mini.js"
