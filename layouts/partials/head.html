@@ -17,10 +17,7 @@
   <!---->
   {{ if eq .Kind "page" }}
   <!-- Truncate summary to 150 chars to avoid Giscus URI_TOO_LONG error -->
-  {{ $summary := .Summary }}
-  {{ if gt (len $summary) 150 }}
-    {{ $summary = (slicestr $summary 0 150) }}
-  {{ end }}
+  {{ $summary := truncate 150 .Summary }}
   <meta name="description" content="{{ $summary }}" />
   <meta name="author" content="{{ or .Params.author $site_author }}" />
   {{ else }}
