@@ -271,14 +271,23 @@ class FlomoToBlogSync:
 
         markdown = h.handle(html_content)
 
-        # 清理多余空行
+        # 清理多余空行和标签行
         lines = markdown.split('\n')
         cleaned = []
         prev_empty = False
         for line in lines:
-            if line.strip():
+            stripped = line.strip()
+
+            # 跳过标签行（以 # 开头）
+            if stripped.startswith('#'):
+                prev_empty = True
+                continue
+
+            # 处理非空行
+            if stripped:
                 cleaned.append(line)
                 prev_empty = False
+            # 处理空行（最多保留一个连续空行）
             elif not prev_empty:
                 cleaned.append('')
                 prev_empty = True
@@ -408,11 +417,28 @@ flomo_source = "{source}"
         # 生成文件名
         filename = self._generate_filename(memo)
 
+        # 提取标题（用于去重）
+        title = self._extract_title(memo['content'])
+
         # 处理图片
         content, _ = self._process_images(memo)
 
         # 转换为 Markdown
         md_content = self._convert_html_to_markdown(content)
+
+        # 删除正文开头与 front matter 标题重复的行
+        lines = md_content.split('\n')
+        cleaned_lines = []
+        title_removed = False
+
+        for line in lines:
+            # 如果第一行与标题相同，跳过
+            if not title_removed and line.strip() == title:
+                title_removed = True
+                continue
+            cleaned_lines.append(line)
+
+        md_content = '\n'.join(cleaned_lines).strip()
 
         # 生成 Front Matter
         front_matter = self._generate_front_matter(memo)
