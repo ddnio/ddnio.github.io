@@ -297,8 +297,8 @@ class FlomoToBlogSync:
     def _process_images(self, memo: Dict) -> Tuple[str, List[str]]:
         """处理笔记中的图片
 
-        从 files 字段和 content HTML 中提取图片，
-        上传到 OSS，返回替换后的内容
+        从 files 字段中提取图片，上传到 OSS，
+        生成 Hugo shortcode 格式，返回替换后的内容
 
         Args:
             memo: 笔记对象
@@ -316,20 +316,19 @@ class FlomoToBlogSync:
             if image_files:
                 logger.debug(f"发现 {len(image_files)} 个图片附件")
 
-                # 用 div 容器包裹图片实现网格布局
-                content += '\n\n<div class="flomo-images">\n\n'
-
                 for file in image_files:
                     try:
                         url = self._upload_image_from_url(file['url'])
                         uploaded_urls.append(url)
-                        # 添加图片，保留原文件名作为 alt
-                        content += f'![{file["name"]}]({url})\n\n'
                         logger.debug(f"上传图片: {file['name']} -> {url}")
                     except Exception as e:
                         logger.warning(f"上传图片失败 {file['name']}: {e}")
 
-                content += '</div>\n'
+                # 生成 Hugo shortcode，用 | 分隔多个图片 URL
+                if uploaded_urls:
+                    images_str = '|'.join(uploaded_urls)
+                    shortcode = f'{{{{< flomo images="{images_str}" >}}}}'
+                    content += f'\n\n{shortcode}\n'
 
         return content, uploaded_urls
 
