@@ -204,7 +204,7 @@ class FlomoToBlogSync:
         return bool(config_tags & memo_tags_set)
 
     def _extract_title(self, content: str, max_length: int = 50) -> str:
-        """从内容中提取标题
+        """从内容中提取标题，跳过标签行
 
         Args:
             content: HTML 内容
@@ -216,12 +216,22 @@ class FlomoToBlogSync:
         # 转换为 Markdown
         md = html2text.html2text(content)
 
-        # 提取第一行非空内容
-        lines = [line.strip() for line in md.split('\n') if line.strip()]
-        if lines:
-            title = lines[0][:max_length]
+        # 逐行处理，跳过标签行
+        for line in md.split('\n'):
+            line = line.strip()
+
+            # 跳过空行
+            if not line:
+                continue
+
+            # 跳过标签行（以 # 开头）
+            if line.startswith('#'):
+                continue
+
+            # 找到第一个有实际内容的行
+            title = line[:max_length]
             # 移除 Markdown 符号
-            title = re.sub(r'^[#\s]+', '', title)
+            title = re.sub(r'^[\*\-_\s]+', '', title)
             if title:
                 return title
 
@@ -292,17 +302,25 @@ class FlomoToBlogSync:
 
         # 1. 处理 files 字段中的附件
         if memo.get('files'):
-            logger.debug(f"发现 {len(memo['files'])} 个附件")
-            for file in memo['files']:
-                if file['type'] == 'image':
+            image_files = [f for f in memo['files'] if f['type'] == 'image']
+
+            if image_files:
+                logger.debug(f"发现 {len(image_files)} 个图片附件")
+
+                # 用 div 容器包裹图片实现网格布局
+                content += '\n\n<div class="flomo-images">\n\n'
+
+                for file in image_files:
                     try:
                         url = self._upload_image_from_url(file['url'])
                         uploaded_urls.append(url)
-                        # 在内容末尾添加图片
-                        content += f'\n\n![{file["name"]}]({url})'
+                        # 添加图片，保留原文件名作为 alt
+                        content += f'![{file["name"]}]({url})\n\n'
                         logger.debug(f"上传图片: {file['name']} -> {url}")
                     except Exception as e:
                         logger.warning(f"上传图片失败 {file['name']}: {e}")
+
+                content += '</div>\n'
 
         return content, uploaded_urls
 
