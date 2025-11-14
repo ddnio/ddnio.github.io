@@ -37,7 +37,7 @@ from flomo.exceptions import AuthenticationError, FlomoAPIError
 
 # 配置日志
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -111,6 +111,7 @@ class FlomoToBlogSync:
         """扫描 posts 目录，返回已同步的 slug 集合
 
         文件名格式: YYYY-MM-DD-{slug}.md
+        使用正则表达式严格验证格式，避免误匹配
 
         Returns:
             已同步的 slug 集合
@@ -121,16 +122,21 @@ class FlomoToBlogSync:
             logger.warning(f"Posts 目录不存在: {self.posts_dir}")
             return synced_slugs
 
+        # 匹配格式: YYYY-MM-DD-{slug}.md
+        # 例如: 2025-10-24-MjAxODc3MTg0.md
+        pattern = r'^(\d{4})-(\d{2})-(\d{2})-(.+)\.md$'
+
         for filepath in self.posts_dir.glob("*.md"):
-            # 文件名格式: 2025-10-24-MjAxODc3MTg0.md
-            # 提取 slug 部分（最后一个 '-' 之后，.md 之前）
             filename = filepath.name
             try:
-                parts = filename.rsplit('-', 1)
-                if len(parts) == 2:
-                    slug = parts[1].replace('.md', '')
+                match = re.match(pattern, filename)
+                if match:
+                    # 第 4 组是 slug
+                    slug = match.group(4)
                     synced_slugs.add(slug)
                     logger.debug(f"已同步: {slug}")
+                else:
+                    logger.debug(f"文件名不符合预期格式，跳过: {filename}")
             except Exception as e:
                 logger.warning(f"解析文件名失败 {filename}: {e}")
 
