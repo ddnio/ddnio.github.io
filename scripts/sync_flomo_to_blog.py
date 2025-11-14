@@ -107,48 +107,69 @@ class FlomoToBlogSync:
 
         return oss2.Auth(access_key_id, access_key_secret)
 
-    def get_synced_slugs(self) -> Set[str]:
-        """扫描 posts 目录，返回已同步的 slug 集合
+    def get_synced_memo_info(self) -> Dict[str, str]:
+        """扫描 posts 目录，返回已同步的笔记信息
 
         文件名格式: YYYY-MM-DD-{slug}.md
         使用正则表达式严格验证格式，避免误匹配
 
+        返回字典格式: {slug: updated_at}
+        用于检测笔记是否已更新
+
         Returns:
-            已同步的 slug 集合
+            已同步笔记信息字典 {slug: updated_at}
         """
-        synced_slugs = set()
+        synced_info = {}
 
         if not self.posts_dir.exists():
             logger.warning(f"Posts 目录不存在: {self.posts_dir}")
-            return synced_slugs
+            return synced_info
 
         # 匹配格式: YYYY-MM-DD-{slug}.md
         # 例如: 2025-10-24-MjAxODc3MTg0.md
-        pattern = r'^(\d{4})-(\d{2})-(\d{2})-(.+)\.md$'
+        filename_pattern = r'^(\d{4})-(\d{2})-(\d{2})-(.+)\.md$'
+        # 从 front matter 提取 flomo_updated_at
+        updated_at_pattern = r'flomo_updated_at\s*=\s*"(.+?)"'
 
         for filepath in self.posts_dir.glob("*.md"):
             filename = filepath.name
             try:
-                match = re.match(pattern, filename)
-                if match:
-                    # 第 4 组是 slug
-                    slug = match.group(4)
-                    synced_slugs.add(slug)
-                    logger.debug(f"已同步: {slug}")
-                else:
+                match = re.match(filename_pattern, filename)
+                if not match:
                     logger.debug(f"文件名不符合预期格式，跳过: {filename}")
+                    continue
+
+                # 第 4 组是 slug
+                slug = match.group(4)
+
+                # 读取文件并解析 front matter 中的 updated_at
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                # 提取 flomo_updated_at 字段
+                updated_match = re.search(updated_at_pattern, content)
+                if updated_match:
+                    updated_at = updated_match.group(1)
+                    synced_info[slug] = updated_at
+                    logger.debug(f"已同步: {slug} (updated_at: {updated_at})")
+                else:
+                    # 兼容旧文件（没有 updated_at 字段）
+                    # 使用一个很早的时间戳，确保会被更新
+                    synced_info[slug] = "1970-01-01 00:00:00"
+                    logger.debug(f"已同步（无 updated_at）: {slug}")
+
             except Exception as e:
-                logger.warning(f"解析文件名失败 {filename}: {e}")
+                logger.warning(f"解析文件失败 {filename}: {e}")
 
-        logger.info(f"发现 {len(synced_slugs)} 条已同步的笔记")
-        return synced_slugs
+        logger.info(f"发现 {len(synced_info)} 条已同步的笔记")
+        return synced_info
 
 
-    def get_new_memos(self, synced_slugs: Set[str]) -> List[Dict]:
-        """获取需要同步的笔记
+    def get_memos_to_sync(self, synced_info: Dict[str, str]) -> List[Dict]:
+        """获取需要同步的笔记（新笔记 + 已更新的笔记）
 
         Args:
-            synced_slugs: 已同步的 slug 集合
+            synced_info: 已同步笔记信息 {slug: updated_at}
 
         Returns:
             需要同步的笔记列表
@@ -165,23 +186,40 @@ class FlomoToBlogSync:
             all_memos = self.api.get_memo_list(latest_updated_at=str(timestamp), limit="200")
             logger.info(f"获取到 {len(all_memos)} 条笔记")
 
-            # 过滤
-            new_memos = []
+            # 过滤和分类
+            memos_to_sync = []
             for memo in all_memos:
-                # 检查是否已同步
-                if memo['slug'] in synced_slugs:
-                    continue
-
                 # 检查是否已删除
                 if memo['deleted_at']:
+                    logger.debug(f"笔记已删除，跳过: {memo['slug']}")
                     continue
 
                 # 检查标签是否匹配
-                if self._tags_match(memo['tags']):
-                    new_memos.append(memo)
+                if not self._tags_match(memo['tags']):
+                    logger.debug(f"标签不匹配，跳过: {memo['slug']}")
+                    continue
 
-            logger.info(f"需要同步的新笔记: {len(new_memos)} 条")
-            return new_memos
+                slug = memo['slug']
+                api_updated_at = memo['updated_at']
+
+                # 判断是新笔记还是已更新笔记
+                if slug not in synced_info:
+                    # 新笔记
+                    logger.info(f"发现新笔记: {slug}")
+                    memos_to_sync.append(memo)
+                elif api_updated_at > synced_info[slug]:
+                    # 已更新笔记
+                    logger.info(
+                        f"检测到笔记更新: {slug} "
+                        f"({synced_info[slug]} -> {api_updated_at})"
+                    )
+                    memos_to_sync.append(memo)
+                else:
+                    # 无变化
+                    logger.debug(f"笔记无变化，跳过: {slug}")
+
+            logger.info(f"需要同步的笔记: {len(memos_to_sync)} 条")
+            return memos_to_sync
 
         except AuthenticationError as e:
             logger.error(f"认证错误: {e}")
@@ -383,6 +421,7 @@ class FlomoToBlogSync:
         # 提取信息
         title = self._extract_title(memo['content'])
         date_str = memo['created_at']  # "2025-10-24 18:45:35"
+        updated_at = memo['updated_at']  # "2025-10-24 18:45:35"
         tags = memo['tags']
         slug = memo['slug']
         source = memo['source']
@@ -400,6 +439,7 @@ draft = false
 tags = {tags}
 flomo_slug = "{slug}"
 flomo_source = "{source}"
+flomo_updated_at = "{updated_at}"
 +++'''
 
         return front_matter
@@ -450,6 +490,8 @@ flomo_source = "{source}"
     def save_markdown_file(self, filename: str, content: str) -> bool:
         """保存 Markdown 文件
 
+        支持新建和覆盖（用于更新已同步的笔记）
+
         Args:
             filename: 文件名
             content: 文件内容
@@ -462,23 +504,21 @@ flomo_source = "{source}"
 
         filepath = self.posts_dir / filename
 
-        # 避免覆盖现有文件
-        if filepath.exists():
-            logger.warning(f"文件已存在，跳过: {filename}")
-            return False
-
-        # 保存文件
+        # 保存文件（新建或覆盖）
         logger.info(f"保存笔记: {filename}")
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(content)
-
-        return True
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+            return True
+        except Exception as e:
+            logger.error(f"保存文件失败 {filename}: {e}")
+            return False
 
     def sync(self) -> Dict[str, int]:
         """执行同步
 
         Returns:
-            同步统计 {'total': 总数, 'synced': 同步数, 'skipped': 跳过数, 'failed': 失败数}
+            同步统计 {'total': 总数, 'new': 新增数, 'updated': 更新数, 'failed': 失败数}
         """
         logger.info("="*60)
         logger.info("开始同步 Flomo 笔记")
@@ -486,35 +526,42 @@ flomo_source = "{source}"
 
         stats = {
             'total': 0,
-            'synced': 0,
-            'skipped': 0,
+            'new': 0,
+            'updated': 0,
             'failed': 0
         }
 
         try:
-            # 1. 获取已同步的笔记
-            synced_slugs = self.get_synced_slugs()
+            # 1. 获取已同步的笔记信息
+            synced_info = self.get_synced_memo_info()
 
-            # 2. 获取需要同步的新笔记
-            new_memos = self.get_new_memos(synced_slugs)
-            stats['total'] = len(new_memos)
+            # 2. 获取需要同步的笔记（新笔记 + 已更新笔记）
+            memos_to_sync = self.get_memos_to_sync(synced_info)
+            stats['total'] = len(memos_to_sync)
 
-            if not new_memos:
-                logger.info("没有新笔记需要同步")
+            if not memos_to_sync:
+                logger.info("没有笔记需要同步")
                 return stats
 
             # 3. 处理每条笔记
-            for memo in new_memos:
+            for memo in memos_to_sync:
                 try:
-                    logger.info(f"处理笔记: {memo['slug']}")
+                    slug = memo['slug']
+                    is_update = slug in synced_info
+
+                    logger.info(f"处理笔记: {slug} ({'更新' if is_update else '新增'})")
                     filename, content = self._generate_markdown_file(memo)
 
                     if self.save_markdown_file(filename, content):
-                        stats['synced'] += 1
-                        logger.info(f"✓ 同步成功: {filename}")
+                        if is_update:
+                            stats['updated'] += 1
+                            logger.info(f"✓ 更新成功: {filename}")
+                        else:
+                            stats['new'] += 1
+                            logger.info(f"✓ 新增成功: {filename}")
                     else:
-                        stats['skipped'] += 1
-                        logger.info(f"⊘ 跳过: {filename}")
+                        stats['failed'] += 1
+                        logger.error(f"✗ 保存失败: {filename}")
 
                 except Exception as e:
                     stats['failed'] += 1
@@ -523,7 +570,12 @@ flomo_source = "{source}"
             # 4. 输出统计
             logger.info("="*60)
             logger.info("同步完成")
-            logger.info(f"总计: {stats['total']}, 成功: {stats['synced']}, 跳过: {stats['skipped']}, 失败: {stats['failed']}")
+            logger.info(
+                f"总计: {stats['total']}, "
+                f"新增: {stats['new']}, "
+                f"更新: {stats['updated']}, "
+                f"失败: {stats['failed']}"
+            )
             logger.info("="*60)
 
             return stats
@@ -546,8 +598,8 @@ def main():
         syncer = FlomoToBlogSync()
         stats = syncer.sync()
 
-        # 如果有同步的笔记，返回成功
-        return stats['synced'] > 0 or stats['total'] == 0
+        # 如果有新增或更新的笔记，返回成功
+        return (stats['new'] + stats['updated']) > 0 or stats['total'] == 0
 
     except Exception as e:
         logger.error(f"错误: {e}", exc_info=True)
