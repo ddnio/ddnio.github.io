@@ -52,7 +52,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add content/posts/
+          git add content/posts/ .flomo_sync_state.json
           if git diff --staged --quiet; then
             echo "没有新的笔记需要提交"
           else

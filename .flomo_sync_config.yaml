@@ -3,8 +3,7 @@
 
 # 要同步的标签列表（任意一个标签匹配即同步）
 tags:
-  - 博客
-  - 每日一记
+  - 胡思乱想
 
 # 阿里云 OSS 配置
 # 敏感信息（AccessKeyId、AccessKeySecret）从环境变量读取
