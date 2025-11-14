@@ -143,42 +143,6 @@ class FlomoToBlogSync:
         logger.info(f"发现 {len(synced_slugs)} 条已同步的笔记")
         return synced_slugs
 
-    def _get_latest_updated_at(self) -> str:
-        """获取上次同步的时间戳
-
-        如果是首次运行，返回 30 天前的时间戳
-        否则从状态文件读取上次同步时间
-
-        Returns:
-            UNIX 时间戳（秒数，字符串格式）
-        """
-        state_file = Path(".flomo_sync_state.json")
-
-        if state_file.exists():
-            try:
-                with open(state_file, 'r', encoding='utf-8') as f:
-                    state = json.load(f)
-                    last_sync_time = state.get('last_sync_time', '0')
-                    logger.info(f"上次同步时间: {state.get('last_sync_at', 'N/A')}")
-                    return last_sync_time
-            except Exception as e:
-                logger.warning(f"读取状态文件失败: {e}，将查询前 30 天的笔记")
-
-        # 首次运行或读取失败，查询前 30 天的笔记
-        thirty_days_ago = int(time.time()) - (30 * 24 * 3600)
-        logger.info(f"首次运行或状态文件不存在，将查询前 30 天的笔记")
-        return str(thirty_days_ago)
-
-    def _save_sync_state(self) -> None:
-        """保存同步状态"""
-        state_file = Path(".flomo_sync_state.json")
-        state = {
-            'last_sync_time': str(int(time.time())),
-            'last_sync_at': datetime.utcnow().isoformat() + 'Z'
-        }
-        with open(state_file, 'w', encoding='utf-8') as f:
-            json.dump(state, f, indent=2, ensure_ascii=False)
-        logger.info(f"已保存同步状态: {state['last_sync_at']}")
 
     def get_new_memos(self, synced_slugs: Set[str]) -> List[Dict]:
         """获取需要同步的笔记
@@ -192,11 +156,13 @@ class FlomoToBlogSync:
         logger.info("从 Flomo 获取笔记...")
 
         try:
-            # 获取上次同步时间
-            latest_updated_at = self._get_latest_updated_at()
+            # 计算 N 天前的时间戳
+            days_to_sync = self.config['sync'].get('days_to_sync', 30)
+            timestamp = int(time.time()) - (days_to_sync * 24 * 3600)
+            logger.info(f"查询前 {days_to_sync} 天的笔记")
 
             # 获取最近的笔记
-            all_memos = self.api.get_memo_list(latest_updated_at=latest_updated_at, limit="200")
+            all_memos = self.api.get_memo_list(latest_updated_at=str(timestamp), limit="200")
             logger.info(f"获取到 {len(all_memos)} 条笔记")
 
             # 过滤
@@ -511,10 +477,7 @@ flomo_source = "{source}"
                     stats['failed'] += 1
                     logger.error(f"✗ 同步失败 {memo['slug']}: {e}", exc_info=True)
 
-            # 4. 保存同步状态
-            self._save_sync_state()
-
-            # 5. 输出统计
+            # 4. 输出统计
             logger.info("="*60)
             logger.info("同步完成")
             logger.info(f"总计: {stats['total']}, 成功: {stats['synced']}, 跳过: {stats['skipped']}, 失败: {stats['failed']}")
