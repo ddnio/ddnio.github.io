@@ -1,0 +1,15 @@
+{{ with .PrevInSection }}
+  {{ $isHidden := or .Params.hidden .Params.hide }}
+  {{ if ne $isHidden true }}
+    {{ $summary := .Params.summary | default (.Summary | plainify | truncate 180) }}
+    <a class="read-more" href="{{ .RelPermalink }}" title="{{ .Title }}">
+      <div class="read-more-header">
+        <div class="read-more-btn">Read More</div>
+      </div>
+      <div class="read-more-content">
+        <h3>{{ .Title }}</h3>
+        <p>【{{ .Date.Format "2006-01-02" }}】{{ $summary }}</p>
+      </div>
+    </a>
+  {{ end }}
+{{ end }}

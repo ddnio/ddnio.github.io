@@ -1,0 +1,19 @@
+{{ define "main" }}
+<article class="hentry">
+  <div class="entry-content heti">
+    <h1 class="post-title entry-title">{{ .Title }}</h1>
+    {{ if eq .Section "posts" }}
+    <h4 class="page-info">
+      {{ with .Params.categories }}<span>Categories: {{ delimit . `, ` }}</span>{{ end }}
+      <time datetime="{{ .Date.Format `2006-01-02T15:04:05-07:00` }}">{{ .Date.Format "2006-01-02" }}</time>
+      {{ if site.Params.busuanzi.enable }}
+      <span id="busuanzi_value_page_pv">-</span> 次阅读
+      {{ end }}
+    </h4>
+    {{ end }}
+    {{ .Content }}
+  </div>
+  {{ partial "giscus.html" . }}
+  {{ partial "read-more.html" . }}
+</article>
+{{ end }}

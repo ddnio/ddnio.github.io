@@ -1,0 +1,12 @@
+{{ define "main" }}
+{{ $pages := .Pages }}
+{{ if .IsHome }}
+  {{ $pages = where site.RegularPages "Section" "posts" }}
+{{ end }}
+{{ $paginator := .Paginate $pages }}
+{{ if and (eq .Kind "term") .Title }}
+<h1 class="entry-title">#{{ .Title }}</h1>
+{{ end }}
+{{ partial "post-item.html" $paginator.Pages }}
+{{ partial "pagination.html" . }}
+{{ end }}

@@ -1,10 +1,21 @@
 baseURL = 'https://ddnio.github.io/'
-languageCode = 'en-us'
+languageCode = 'zh-CN'
 title = 'ddnio的胡思乱想'
-theme = "paper"
+theme = "cosy"
+paginate = 10
 # markup.goldmark.renderer.unsafe = true
 
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[menu]
+  [[menu.main]]
+    name = "GitHub"
+    url = "https://github.com/ddnio"
+    weight = 1
+
 [params]
+  description = 'say something'
   # home page profile
   avatar = 'https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/uPic/20240627out-2%20(1)_%E5%89%AF%E6%9C%AC.png'                 # gravatar email or image url
   name = 'Nio'

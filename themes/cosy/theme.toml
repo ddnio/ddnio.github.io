@@ -1,0 +1,11 @@
+name = "cosy"
+license = "MIT"
+licenselink = "https://github.com/tw93/tw93.github.io/blob/main/License"
+description = "Cosy Jekyll style migrated to Hugo"
+homepage = "https://github.com/tw93/tw93.github.io"
+min_version = "0.127.0"
+
+authors = [
+  {name = "Tw93"},
+  {name = "ddnio"}
+]

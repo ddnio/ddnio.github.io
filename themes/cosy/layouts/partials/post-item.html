@@ -1,0 +1,14 @@
+{{ range . }}
+  {{ $isHidden := or .Params.hidden .Params.hide }}
+  {{ if ne $isHidden true }}
+    {{ $summary := .Params.summary | default (.Summary | plainify | truncate 180) }}
+    <a href="{{ .RelPermalink }}" rel="bookmark" title="{{ .Title }}" itemprop="url" class="header-href">
+      <article class="hentry">
+        <h2 class="entry-title">{{ .Title }}</h2>
+        <div class="entry-content">
+          <span>【{{ .Date.Format "2006-01-02" }}】</span>{{ $summary }}
+        </div>
+      </article>
+    </a>
+  {{ end }}
+{{ end }}

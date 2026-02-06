@@ -1,0 +1,46 @@
+{{ $homeActive := "active" }}
+{{ if .Params.hideHomeActive }}{{ $homeActive = "" }}{{ end }}
+<div class="header-menu" id="J_header">
+  <ul class="header-item-container">
+    <li class="header-item-title {{ $homeActive }}">
+      <a href="{{ `/` | relURL }}" class="title">{{ site.Title }}</a>
+    </li>
+
+    {{ range site.Menus.main }}
+    {{ $class := "" }}
+    {{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}{{ $class = "active" }}{{ end }}
+    <li class="header-item-left {{ $class }}">
+      <a href="{{ .URL }}"{{ if or (hasPrefix .URL `http://`) (hasPrefix .URL `https://`) }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ .Name }}</a>
+    </li>
+    {{ end }}
+
+    <li class="header-item search-btn-container">
+      <button id="search-btn" class="search-btn" aria-label="Search" title="Search (Press /)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+          <path d="M20 20L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </li>
+  </ul>
+</div>
+
+{{ $fontSize := 36 }}
+{{ $title := .Title }}
+{{ if .IsHome }}
+  {{ $title = site.Params.description | default site.Params.bio | default site.Title }}
+  {{ with site.Home }}
+    {{ if .Description }}{{ $title = .Description }}{{ end }}
+  {{ end }}
+{{ end }}
+<div class="entry-header">
+  <svg width="100%" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" role="img" aria-label="{{ $title }}">
+    <path id="svg-title-path">
+      <animate attributeName="d" from="m0,110 h0" to="m0,110 h1600" dur="2s" repeatCount="1" fill="freeze" begin="0s" />
+    </path>
+    <text font-size="{{ $fontSize }}" font-weight="600" fill="#ffffff" x="50%" y="50%" text-anchor="middle" word-spacing="2.0" letter-spacing="1.2">
+      <textPath xlink:href="#svg-title-path">{{ $title }}</textPath>
+    </text>
+  </svg>
+  <canvas id="J_firework_canvas" aria-hidden="true" role="presentation"></canvas>
+</div>

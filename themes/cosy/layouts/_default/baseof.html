@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ site.LanguageCode | default `zh-CN` }}">
+{{ partial "head.html" . }}
+{{ $bodyID := "page" }}
+{{ if .IsHome }}
+  {{ $bodyID = "post-index" }}
+{{ else if eq .Kind "404" }}
+  {{ $bodyID = "home" }}
+{{ else if .IsPage }}
+  {{ if eq .Section "posts" }}
+    {{ $bodyID = "post" }}
+  {{ else }}
+    {{ $bodyID = "page" }}
+  {{ end }}
+{{ else }}
+  {{ $bodyID = "post-index" }}
+{{ end }}
+<body id="{{ $bodyID }}">
+  {{ partial "header.html" . }}
+
+  <div id="main" role="main">
+    {{ block "main" . }}{{ end }}
+  </div>
+
+  {{ partial "search.html" . }}
+  {{ partial "footer.html" . }}
+</body>
+</html>

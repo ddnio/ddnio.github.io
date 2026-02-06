@@ -1,0 +1,55 @@
+{{ $paginator := .Paginator }}
+{{ if gt $paginator.TotalPages 1 }}
+{{ $firstPager := index $paginator.Pagers 0 }}
+{{ $lastPager := index $paginator.Pagers (sub $paginator.TotalPages 1) }}
+<div class="pagination">
+  <ul class="inline-list">
+    {{ if $paginator.HasPrev }}
+      <li><a href="{{ $paginator.Prev.URL }}" class="btn-arrow">&lt;</a></li>
+    {{ end }}
+
+    {{ if eq $paginator.PageNumber 1 }}
+    <li><strong class="current-page">1</strong></li>
+    {{ else }}
+    <li><a href="{{ $firstPager.URL }}">1</a></li>
+    {{ end }}
+
+    {{ $pageStart := 2 }}
+    {{ if gt $paginator.PageNumber 5 }}
+      {{ $pageStart = sub $paginator.PageNumber 2 }}
+      <li>…</li>
+    {{ end }}
+
+    {{ $pageEnd := sub $paginator.TotalPages 1 }}
+    {{ $pagesToEnd := sub $paginator.TotalPages $paginator.PageNumber }}
+    {{ if gt $pagesToEnd 4 }}
+      {{ $pageEnd = add $paginator.PageNumber 2 }}
+    {{ end }}
+
+    {{ if le $pageStart $pageEnd }}
+      {{ range seq $pageStart $pageEnd }}
+        {{ if eq . $paginator.PageNumber }}
+        <li><strong class="current-page">{{ . }}</strong></li>
+        {{ else }}
+        {{ $pager := index $paginator.Pagers (sub . 1) }}
+        <li><a href="{{ $pager.URL }}">{{ . }}</a></li>
+        {{ end }}
+      {{ end }}
+    {{ end }}
+
+    {{ if gt $pagesToEnd 4 }}
+    <li>…</li>
+    {{ end }}
+
+    {{ if eq $paginator.PageNumber $paginator.TotalPages }}
+    <li><strong class="current-page">{{ $paginator.TotalPages }}</strong></li>
+    {{ else }}
+    <li><a href="{{ $lastPager.URL }}">{{ $paginator.TotalPages }}</a></li>
+    {{ end }}
+
+    {{ if $paginator.HasNext }}
+    <li><a href="{{ $paginator.Next.URL }}" class="btn-arrow">&gt;</a></li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}

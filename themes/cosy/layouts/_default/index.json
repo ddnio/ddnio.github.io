@@ -1,0 +1,15 @@
+{{- $posts := where site.RegularPages "Section" "posts" -}}
+[
+{{- range $index, $post := $posts -}}
+{{- if gt $index 0 }},{{ end }}
+  {
+    "title": {{ $post.Title | jsonify }},
+    "url": {{ $post.RelPermalink | jsonify }},
+    "date": {{ ($post.Date.Format "2006-01-02") | jsonify }},
+    "categories": {{ ($post.Params.categories | default (slice)) | jsonify }},
+    "summary": {{ ($post.Params.summary | default "") | jsonify }},
+    "content": {{ ($post.Plain | truncate 300) | jsonify }},
+    "lang": "zh-CN"
+  }
+{{- end -}}
+]
