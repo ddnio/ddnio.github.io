@@ -1,14 +1,12 @@
 +++
-title = "写在工作10年**"
+title = "写在工作10年"
 date = 2025-12-11T21:04:42+08:00
 draft = false
 tags = ['每日一记', '胡思乱想']
 flomo_slug = "MjEwMDcyNzE2"
 flomo_source = "web"
-flomo_updated_at = "2025-12-12 00:19:28"
+flomo_updated_at = "2026-02-11 13:24:58"
 +++
-
-**写在工作10年**
 
 早上起来发现一个大学好朋友写了篇自己的微信公众号，点进去看了一圈，发现一篇《写在工作 10 年》，念头在脑子里挥之不去，到了晚上，敲下了这篇我的 10 年。
 
@@ -44,4 +42,4 @@ flomo_updated_at = "2025-12-12 00:19:28"
 
 谢谢你。
 
-{{< flomo images="https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/flomo/2025-12-12/1765499001_9d57d2d6.jpg|https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/flomo/2025-12-12/1765499004_249f0983.jpg|https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/flomo/2025-12-12/1765499006_fe039e26.jpg" >}}
+{{< flomo images="https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/flomo/2026-02-11/1770787775_011e7e1b.jpg|https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/flomo/2026-02-11/1770787779_facc6658.jpg|https://ddnio-blog.oss-cn-shenzhen.aliyuncs.com/flomo/2026-02-11/1770787782_df410929.jpg" >}}
